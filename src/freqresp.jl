@@ -13,6 +13,7 @@ function freqresp{S<:Real}(sys::LTISystem, w::AbstractVector{S})
     else
         s = im*w
     end
+    #Evil but nessesary type instability here
     sys = _preprocess_for_freqresp(sys)
     resp = Array(Complex128, ny, nu, nw)
     for i=1:nw
@@ -36,7 +37,12 @@ function _preprocess_for_freqresp(sys::StateSpace)
     StateSpace(H, Q, P, D, sys.Ts, sys.statenames, sys.inputnames,
         sys.outputnames)
 end
-_preprocess_for_freqresp(sys::TransferFunction) = sys
+
+function _preprocess_for_freqresp(sys::TransferFunction)
+    map(sisotf -> _preprocess_for_freqresp(sisotf), sys.matrix)
+end
+
+_preprocess_for_freqresp(sys::SisoTf) = sys
 
 @doc """Evaluate the frequency response
 

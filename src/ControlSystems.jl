@@ -5,6 +5,7 @@ export  LTISystem,
         TransferFunction,
         ss,
         tf,
+        tfa,
         zpk,
         ss2tf,
         # Linear Algebra

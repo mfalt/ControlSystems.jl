@@ -2,6 +2,7 @@ abstract SisoTf
 include("polys.jl")
 include("sisotf.jl")
 include("sisozpk.jl")
+include("sisoabstract.jl")
 #####################################################################
 ##                      Data Type Declarations                     ##
 #####################################################################
@@ -256,6 +257,22 @@ end
 
 zpk(var::AbstractString) = zpk(tf(var))
 zpk(var::AbstractString, Ts::Real) = zpk(tf(var, Ts))
+
+function tfa(systems::Array, Ts::Real=0; kwargs...)
+    ny, nu = size(systems, 1, 2)
+    matrix = Array(SisoAbstract, ny, nu)
+    for o=1:ny
+        for i=1:nu
+            matrix[o, i] = SisoAbstract(systems[o, i])
+        end
+    end
+    kvs = Dict(kwargs)
+    inputnames = validate_names(kvs, :inputnames, nu)
+    outputnames = validate_names(kvs, :outputnames, ny)
+    return TransferFunction(matrix, Float64(Ts), inputnames, outputnames)
+end
+
+tfa(var::AbstractString, Ts=0; kwargs...) = tfa(AbstractString[var], Ts; kwargs...)
 
 #####################################################################
 ##                          Misc. Functions                        ##
