@@ -13,6 +13,7 @@ end
 
 forceExpr(expr::Expr) = expr
 forceExpr(n::Number) = :($n + 0)
+forceExpr(n::Symbol) = :($s + 0)
 
 function minreal(sys::SisoAbstract, eps::Real=sqrt(eps()))
     error("minreal is not implemented for abstract transferfunctions")
@@ -40,7 +41,7 @@ function _preprocess_for_freqresp(sys::SisoAbstract)
 end
 
 evalfr(f::Function, freq) = f(freq)
-evalfr(f::SisoAbstract, freq) = _preprocess_for_freqresp(sys)(freq)
+evalfr(sys::SisoAbstract, freq) = _preprocess_for_freqresp(sys)(freq)
 
 ==(t1::SisoAbstract, t2::SisoAbstract) = (t1.expr == t2.expr)
 
@@ -48,18 +49,18 @@ evalfr(f::SisoAbstract, freq) = _preprocess_for_freqresp(sys)(freq)
 
 +(t1::SisoAbstract, t2::SisoAbstract) = SisoAbstract(:($(t1.expr) + $(t2.expr)))
 +(t::SisoAbstract, n::Real) = SisoAbstract(:($(t.expr) + $n))
-+(n::Real, t::SisoAbstract) = t + n
++(n::Real, t::SisoAbstract) = SisoAbstract(:($n + $(t.expr)))
 
 -(t1::SisoAbstract, t2::SisoAbstract) = SisoAbstract(:($(t1.expr) - $(t2.expr)))
 -(n::Real, t::SisoAbstract) = SisoAbstract(:($n - $(t.expr)))
--(t::SisoAbstract, n::Real) = +(t, -n)
+-(t::SisoAbstract, n::Real) = SisoAbstract(:($(t.expr) - $n))
 
 -(t::SisoAbstract) = SisoAbstract(:(- $(t.expr)))
 
 *(t1::SisoAbstract, t2::SisoAbstract) = SisoAbstract(:($(t1.expr) * $(t2.expr)))
 *(t::SisoAbstract, n::Real) = SisoAbstract(:($(t.expr) * $n))
-*(n::Real, t::SisoAbstract) = *(t, n)
+*(n::Real, t::SisoAbstract) = SisoAbstract(:($n * $(t.expr)))
 
 /(n::Real, t::SisoAbstract) = SisoAbstract(:($n / $(t.expr)))
-/(t::SisoAbstract, n::Real) = t*(1/n)
+/(t::SisoAbstract, n::Real) = SisoAbstract(:($(t.expr) / $n))
 /(t1::SisoAbstract, t2::SisoAbstract) = SisoAbstract(:($(t1.expr) / $(t2.expr)))
