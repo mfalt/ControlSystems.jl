@@ -272,7 +272,7 @@ function tfa(systems::Array, Ts::Real=0; kwargs...)
     return TransferFunction(matrix, Float64(Ts), inputnames, outputnames)
 end
 
-tfa(var::AbstractString, Ts=0; kwargs...) = tfa(AbstractString[var], Ts; kwargs...)
+tfa(var::Union{AbstractString,ExprLike}, Ts=0; kwargs...) = tfa([var], Ts; kwargs...)
 
 #####################################################################
 ##                          Misc. Functions                        ##

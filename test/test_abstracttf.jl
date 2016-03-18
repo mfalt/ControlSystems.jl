@@ -5,7 +5,7 @@ using ControlSystems
 # CONTINUOUS
 C_011 = tfa("(s+2)")
 C_111 = tfa("(s+1)/(s+2)")
-@test C_111*C_011 == tfa("(s+2)*((s+1)/(s+2))")
+@test C_011*C_111 == tfa("(s+2)*((s+1)/(s+2))")
 
 #We might want to make evalfr scalar
 @test C_011(1im) == reshape([2+1im;],1,1)

@@ -1,19 +1,18 @@
+ExprLike = Union{Expr,Number,Symbol}
+
 ## User should just use TransferFunction
 immutable SisoAbstract <: SisoTf
-    expr::Expr
-    function SisoAbstract(expr::Expr)
+    expr::ExprLike
+    function SisoAbstract(expr::ExprLike)
+        if isa(expr, Expr) && length(expr.args) == 3 && expr.args[1] == :(+) && expr.args[2] == 0
+            #Get rid of the zero
+            expr = expr.args[3]
+        end
         new(expr)
     end
 end
 
-function SisoAbstract(str::AbstractString)
-    expr = parse(str)
-    SisoAbstract(forceExpr(expr))
-end
-
-forceExpr(expr::Expr) = expr
-forceExpr(n::Number) = :($n + 0)
-forceExpr(n::Symbol) = :($s + 0)
+SisoAbstract(str::AbstractString) = SisoAbstract(parse(str))
 
 function minreal(sys::SisoAbstract, eps::Real=sqrt(eps()))
     error("minreal is not implemented for abstract transferfunctions")
@@ -24,9 +23,9 @@ function print_siso(io::IO, t::SisoAbstract, var=:s)
 end
 
 Base.promote_rule{T<:Real}(::Type{SisoAbstract}, ::Type{T}) = SisoAbstract
-Base.convert(::Type{SisoAbstract}, b::Real) = SisoAbstract("$b")
+Base.convert(::Type{SisoAbstract}, b::Real) = SisoAbstract(b)
 
-Base.zero(::Type{SisoAbstract}) = SisoAbstract("0")
+Base.zero(::Type{SisoAbstract}) = SisoAbstract(0)
 Base.zero(::SisoAbstract) = Base.zero(SisoAbstract)
 
 Base.length(t::SisoAbstract) = error("length is not implemented for abstract transferfunctions")
