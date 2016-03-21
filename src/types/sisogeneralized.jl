@@ -58,6 +58,31 @@ function lsimabstract(sys::SisoGeneralized, uin, dt, Tend)
     y[1:N]
 end
 
+function SisoRational(expr::Expr)
+    if length(expr.args) == 1
+        error("Unexpected operator $(expr.args[1]) in expression")
+    end
+    if expr.args[1] == :+
+        return reduce(+, map(t -> SisoRational(t), expr.args[2:end]))
+    elseif expr.args[1] == :*
+        return reduce(*, map(t -> SisoRational(t), expr.args[2:end]))
+    elseif length(expr.args) == 2 && expr.args[1] == :-
+        return - SisoRational(expr.args[2])
+    elseif length(expr.args) == 3
+        if expr.args[1] == :-
+            return SisoRational(expr.args[2]) - SisoRational(expr.args[3])
+        elseif expr.args[1] == :/
+            return SisoRational(expr.args[2]) / SisoRational(expr.args[3])
+        else
+            error("Unexpected operator $(expr.args[1]) in expression")
+        end
+    else
+        error("Could not parse \"$(expr.args[1])\" in expression")
+    end
+end
+SisoRational(expr::Symbol) = (expr == :s ? SisoRational([1, 0],[1]) : error("invalid symbol \"$exp\" only \"s\" is allowed"))
+SisoRational(expr::Number) = isa(expr,Real) ? SisoRational([expr],[1]) : error("Only real numers are allowed in transferfunction")
+
 ==(t1::SisoGeneralized, t2::SisoGeneralized) = (t1.expr == t2.expr)
 
 #isapprox(t1::SisoRational, t2::SisoRational) = (t1.num ≈ t2.num && t1.den ≈ t2.den)

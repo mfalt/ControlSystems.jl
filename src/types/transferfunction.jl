@@ -76,6 +76,8 @@ function Base.convert(::Type{SisoGeneralized}, sys::SisoZpk)
     return SisoRational(num, den)
 end
 
+Base.convert(::Type{SisoRational}, sys::SisoGeneralized) = SisoRational(sys.expr)
+
 #Just default SisoTf to SisoRational
 SisoTf(args...) = SisoRational(args...)
 Base.convert(::Type{ControlSystems.SisoTf}, b::Real) = Base.convert(ControlSystems.SisoRational, b)
@@ -191,28 +193,33 @@ function zpk{T<:Vector,S<:Vector}(z::VecOrMat{T}, p::VecOrMat{S}, k::VecOrMat, T
 end
 
 function zpk(tf::TransferFunction)
-    tf = copy(tf)
+    oldmat = tf.matrix
     matrix = Array(SisoZpk, tf.ny, tf.nu)
-    for o=1:tf.ny
-        for i=1:tf.nu
-            matrix[o, i] = convert(SisoZpk, tf.matrix[o, i])
-        end
+    for i in eachindex(oldmat)
+        matrix[i] = convert(SisoZpk, oldmat[i])
     end
-    tf.matrix = matrix
-    return tf
+    return TransferFunction(matrix, tf.Ts, copy(tf.inputnames), copy(tf.outputnames))
 end
 
-function tf(s::TransferFunction)
-    s = copy(s)
-    matrix = Array(SisoRational, s.ny, s.nu)
-    for o=1:s.ny
-        for i=1:s.nu
-            matrix[o, i] = convert(SisoRational, s.matrix[o, i])
-        end
+function tf(tf::TransferFunction)
+    oldmat = tf.matrix
+    matrix = Array(SisoRational, tf.ny, tf.nu)
+    for i in eachindex(oldmat)
+        matrix[i] = convert(SisoRational, oldmat[i])
     end
-    s.matrix = matrix
-    return s
+    return TransferFunction(matrix, tf.Ts, copy(tf.inputnames), copy(tf.outputnames))
 end
+
+#function tf(sys::TransferFunction{SisoGeneralized})
+#    oldmat = sys.matrix
+#    matrix = Array(SisoRational, sys.ny, sys.nu)
+#    for i in eachindex(oldmat)
+#        matrix[i] = SisoRational(oldmat[i].expr)
+#    end
+#    return TransferFunction(matrix, sys.Ts, copy(sys.inputnames), copy(sys.outputnames))
+#end
+
+zpk(sys::TransferFunction{SisoGeneralized}) = zpk(tf(sys))
 
 tf(num::Vector, den::Vector, Ts::Real=0; kwargs...) =
     tf(reshape(Vector[num], 1, 1), reshape(Vector[den], 1, 1), Ts; kwargs...)
@@ -283,7 +290,6 @@ function tfa(systems::Array, Ts::Real=0; kwargs...)
 end
 
 tfa(var::Union{AbstractString,ExprLike}, Ts=0; kwargs...) = tfa([var], Ts; kwargs...)
-
 #####################################################################
 ##                          Misc. Functions                        ##
 #####################################################################

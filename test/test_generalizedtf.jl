@@ -11,5 +11,8 @@ C_111 = tfa("(s+1)/(s+2)")
 @test C_011(1im) == reshape([2+1im;],1,1)
 @test (C_111*C_011)(im) == reshape([1.0+1im],1,1)
 
+@test tf(C_111) == tf([1,1],[1,2])
+@test zpk(C_011*C_111) == zpk([-1,-2],[-2],1)
+
 @test bode(C_111*C_011, logspace(-1,1)) == bode(tfa("(s+2)*((s+1)/(s+2))"), logspace(-1,1))
 end
