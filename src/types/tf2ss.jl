@@ -34,7 +34,7 @@ function Base.convert(::Type{StateSpace}, t::TransferFunction)
     return ss(A, B, C, D, t.Ts, inputnames=t.inputnames, outputnames=t.outputnames)
 end
 
-Base.promote_rule(::Type{StateSpace}, ::Type{TransferFunction}) = StateSpace
+Base.promote_rule{T<:SisoTf}(::Type{StateSpace}, ::Type{TransferFunction{T}}) = StateSpace
 
 siso_tf_to_ss(t::SisoTf) = siso_tf_to_ss(convert(SisoRational, t))
 

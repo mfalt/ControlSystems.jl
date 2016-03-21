@@ -35,8 +35,8 @@ TransferFunction{T<:SisoTf}(matrix::Matrix{T}, args...) = TransferFunction{T}(ma
 
 +{T<:Real}(a::TransferFunction, b::AbstractVecOrMat{T}) = +(promote(a,b)...)
 
-Base.promote_rule{T<:Real}(::Type{TransferFunction}, ::Type{T}) = TransferFunction
-Base.promote_rule{T<:Real}(::Type{TransferFunction}, ::Union{Type{Array{T,2}},Type{Array{T,1}}}) = TransferFunction
+Base.promote_rule{S<:SisoTf,T<:Real}(::Type{TransferFunction{S}}, ::Type{T}) = TransferFunction{S}
+Base.promote_rule{S<:SisoTf,T<:Real}(::Type{TransferFunction{S}}, ::Union{Type{Array{T,2}},Type{Array{T,1}}}) = TransferFunction{S}
 
 Base.convert{T<:Real}(::Type{TransferFunction}, b::T) = tf([b])
 Base.convert{T<:Real}(::Type{TransferFunction{SisoRational}}, b::T) = tf(b)
