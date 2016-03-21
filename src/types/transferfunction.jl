@@ -7,8 +7,8 @@ include("sisoabstract.jl")
 ##                      Data Type Declarations                     ##
 #####################################################################
 
-type TransferFunction <: LTISystem
-    matrix::Matrix{SisoTf}
+type TransferFunction{S<:SisoTf} <: LTISystem
+    matrix::Matrix{S}
     Ts::Float64
     nu::Int
     ny::Int
@@ -28,24 +28,28 @@ type TransferFunction <: LTISystem
             error("Ts must be either a positive number, 0
                 (continuous system), or -1 (unspecified)")
         end
-        return new(matrix, Ts, nu, ny, inputnames, outputnames)
+        return new{T}(matrix, Ts, nu, ny, inputnames, outputnames)
     end
 end
+TransferFunction{T<:SisoTf}(matrix::Matrix{T}, args...) = TransferFunction{T}(matrix, args...)
 
 +{T<:Real}(a::TransferFunction, b::AbstractVecOrMat{T}) = +(promote(a,b)...)
 
 Base.promote_rule{T<:Real}(::Type{TransferFunction}, ::Type{T}) = TransferFunction
 Base.promote_rule{T<:Real}(::Type{TransferFunction}, ::Union{Type{Array{T,2}},Type{Array{T,1}}}) = TransferFunction
-Base.convert{T<:Real}(::Type{TransferFunction}, b::T) = tf([b], [1])
+
+Base.convert{T<:Real}(::Type{TransferFunction}, b::T) = tf([b])
+Base.convert{T<:Real}(::Type{TransferFunction{SisoRational}}, b::T) = tf(b)
+Base.convert{T<:Real}(::Type{TransferFunction{SisoZpk}}, b::T) = zpk(b)
+Base.convert{T<:Real}(::Type{TransferFunction{SisoAbstract}}, b::T) = tfa(b)
 
 Base.promote_rule(::Type{SisoRational}, ::Type{SisoZpk}) = SisoZpk
-Base.promote_rule(::Type{SisoTf}, ::Type{SisoZpk}) = SisoZpk
-Base.promote_rule(::Type{SisoTf}, ::Type{SisoRational}) = SisoRational
+Base.promote_rule{T<:SisoTf}(::Type{T}, ::Type{SisoAbstract}) = SisoAbstract
 
 function Base.convert{T<:Real}(::Type{TransferFunction}, b::VecOrMat{T})
     r = Array{TransferFunction,2}(size(b,2),1)
     for j=1:size(b,2)
-        r[j] = vcat(map(s->tf([s],[1]),b[:,j])...)
+        r[j] = vcat(map(k->convert(TransferFunction,k),b[:,j])...)
     end
     hcat(r...)
 end
@@ -66,13 +70,19 @@ function Base.convert(::Type{SisoRational}, sys::SisoZpk)
     return SisoRational(num, den)
 end
 
+function Base.convert(::Type{SisoAbstract}, sys::SisoZpk)
+    num = prod(zp2polys(sys.z))*sys.k
+    den = prod(zp2polys(sys.p))
+    return SisoRational(num, den)
+end
+
 #Just default SisoTf to SisoRational
 SisoTf(args...) = SisoRational(args...)
 Base.convert(::Type{ControlSystems.SisoTf}, b::Real) = Base.convert(ControlSystems.SisoRational, b)
 Base.zero(::Type{SisoTf}) = zero(SisoRational)
 Base.zero(::SisoTf) = zero(SisoRational)
 
-tzero(sys::SisoTf) = roots(sys.num)
+tzero(sys::SisoTf) = error("tzero is not implemented for type $(typeof(sys))")
 #####################################################################
 ##                      SisoTf Operations                   ##
 #####################################################################

@@ -149,6 +149,12 @@ end
 _default_freq_vector(sys::LTISystem, plot::Symbol) = _default_freq_vector(
         LTISystem[sys], plot)
 
+_default_freq_vector{T<:TransferFunction{SisoAbstract}}(sys::Vector{T}, plot::Symbol) =
+    logspace(-2,2,400)
+_default_freq_vector(sys::TransferFunction{SisoAbstract} , plot::Symbol) =
+    logspace(-2,2,400)
+
+
 function _bounds_and_features(sys::LTISystem, plot::Symbol)
     # Get zeros and poles for each channel
     if plot != :sigma

@@ -29,10 +29,10 @@ Base.zero(::Type{SisoAbstract}) = SisoAbstract(0)
 Base.zero(::SisoAbstract) = Base.zero(SisoAbstract)
 
 Base.length(t::SisoAbstract) = error("length is not implemented for abstract transferfunctions")
-
 Base.num(t::SisoAbstract) = error("num is not implemented for abstract transferfunctions")
-
 Base.den(t::SisoAbstract) = error("den is not implemented for abstract transferfunctions")
+pole(t::SisoAbstract) = error("pole is not implemented for abstract transferfunctions")
+tzero(t::SisoAbstract) = error("tzero is not implemented for abstract transferfunctions")
 
 #This makes sure that the function can compile once
 function _preprocess_for_freqresp(sys::SisoAbstract)
@@ -41,6 +41,22 @@ end
 
 evalfr(f::Function, freq) = f(freq)
 evalfr(sys::SisoAbstract, freq) = _preprocess_for_freqresp(sys)(freq)
+
+function lsimabstract(sys::SisoAbstract, uin, dt, Tend)
+    #TODO make sure U and P are of equal length, fix input arguments, Tend results in half time, make sure u interp is using Tend
+    N = round(Int, Tend/dt) + 1
+    #T=N*dt
+    T = Tend
+    dw = pi/T
+    omega = linspace(-pi/dt, pi/dt, 2N+1)
+    u = [uin; zeros(N)]
+    U = fft(u)
+    Pf = _preprocess_for_freqresp(sys)
+    P = Complex{Float64}[evalfr(Pf, omega[i]*im) for i in 1:2N]
+    y = real(ifft(fftshift(P).*U))
+    t = dt*(0:N-1)
+    y[1:N]
+end
 
 ==(t1::SisoAbstract, t2::SisoAbstract) = (t1.expr == t2.expr)
 

@@ -71,6 +71,9 @@ function evalfr(sys::SisoRational, s::Number)
     end
 end
 
+tzero(t::SisoRational) = roots(t.num)
+pole(t::SisoRational) = roots(t.den)
+
 ==(t1::SisoRational, t2::SisoRational) = (t1.num == t2.num && t1.den == t2.den)
 # We might want to consider alowing scaled num and den as equal
 isapprox(t1::SisoRational, t2::SisoRational) = (t1.num ≈ t2.num && t1.den ≈ t2.den)
