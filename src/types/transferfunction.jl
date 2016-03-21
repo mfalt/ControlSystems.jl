@@ -2,7 +2,7 @@ abstract SisoTf
 include("polys.jl")
 include("sisotf.jl")
 include("sisozpk.jl")
-include("sisoabstract.jl")
+include("sisogeneralized.jl")
 #####################################################################
 ##                      Data Type Declarations                     ##
 #####################################################################
@@ -41,10 +41,10 @@ Base.promote_rule{S<:SisoTf,T<:Real}(::Type{TransferFunction{S}}, ::Union{Type{A
 Base.convert{T<:Real}(::Type{TransferFunction}, b::T) = tf([b])
 Base.convert{T<:Real}(::Type{TransferFunction{SisoRational}}, b::T) = tf(b)
 Base.convert{T<:Real}(::Type{TransferFunction{SisoZpk}}, b::T) = zpk(b)
-Base.convert{T<:Real}(::Type{TransferFunction{SisoAbstract}}, b::T) = tfa(b)
+Base.convert{T<:Real}(::Type{TransferFunction{SisoGeneralized}}, b::T) = tfa(b)
 
 Base.promote_rule(::Type{SisoRational}, ::Type{SisoZpk}) = SisoZpk
-Base.promote_rule{T<:SisoTf}(::Type{T}, ::Type{SisoAbstract}) = SisoAbstract
+Base.promote_rule{T<:SisoTf}(::Type{T}, ::Type{SisoGeneralized}) = SisoGeneralized
 
 function Base.convert{T<:Real}(::Type{TransferFunction}, b::VecOrMat{T})
     r = Array{TransferFunction,2}(size(b,2),1)
@@ -70,7 +70,7 @@ function Base.convert(::Type{SisoRational}, sys::SisoZpk)
     return SisoRational(num, den)
 end
 
-function Base.convert(::Type{SisoAbstract}, sys::SisoZpk)
+function Base.convert(::Type{SisoGeneralized}, sys::SisoZpk)
     num = prod(zp2polys(sys.z))*sys.k
     den = prod(zp2polys(sys.p))
     return SisoRational(num, den)
@@ -270,16 +270,16 @@ zpk(var::AbstractString, Ts::Real) = zpk(tf(var, Ts))
 
 function tfa(systems::Array, Ts::Real=0; kwargs...)
     ny, nu = size(systems, 1, 2)
-    matrix = Array(SisoAbstract, ny, nu)
+    matrix = Array(SisoGeneralized, ny, nu)
     for o=1:ny
         for i=1:nu
-            matrix[o, i] = SisoAbstract(systems[o, i])
+            matrix[o, i] = SisoGeneralized(systems[o, i])
         end
     end
     kvs = Dict(kwargs)
     inputnames = validate_names(kvs, :inputnames, nu)
     outputnames = validate_names(kvs, :outputnames, ny)
-    return TransferFunction{SisoAbstract}(matrix, Float64(Ts), inputnames, outputnames)
+    return TransferFunction(matrix, Float64(Ts), inputnames, outputnames)
 end
 
 tfa(var::Union{AbstractString,ExprLike}, Ts=0; kwargs...) = tfa([var], Ts; kwargs...)

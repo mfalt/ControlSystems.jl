@@ -24,8 +24,8 @@ function Base.step(sys::StateSpace, t::AbstractVector)
     end
     return y, t, x
 end
-function Base.step(sys::TransferFunction{SisoAbstract}, t::AbstractVector)
-    lsim(sys::TransferFunction{SisoAbstract}, ones(length(t), sys.nu), t)
+function Base.step(sys::TransferFunction{SisoGeneralized}, t::AbstractVector)
+    lsim(sys::TransferFunction{SisoGeneralized}, ones(length(t), sys.nu), t)
 end
 
 Base.step(sys::LTISystem, Tf::Real) = step(sys, _default_time_vector(sys, Tf))
@@ -63,10 +63,10 @@ function impulse(sys::StateSpace, t::AbstractVector)
     end
     return y, t, x
 end
-function impulse(sys::TransferFunction{SisoAbstract}, t::AbstractVector)
+function impulse(sys::TransferFunction{SisoGeneralized}, t::AbstractVector)
     u = zeros(length(t), sys.nu)
     u[1,:] = 1/(t[2]-t[1])
-    lsim(sys::TransferFunction{SisoAbstract}, u, t)
+    lsim(sys::TransferFunction{SisoGeneralized}, u, t)
 end
 
 impulse(sys::LTISystem, Tf::Real) = impulse(sys, _default_time_vector(sys, Tf))
@@ -112,7 +112,7 @@ function lsim(sys::StateSpace, u::AbstractVecOrMat, t::AbstractVector,
 end
 lsim(sys::TransferFunction, u, t, args...) = lsim(ss(sys), u, t, args...)
 
-function lsim(sys::TransferFunction{SisoAbstract}, u, t)
+function lsim(sys::TransferFunction{SisoGeneralized}, u, t)
     ny, nu = size(sys)
     if !any(size(u) .== [(length(t), nu) (length(t),)])
         error("u must be of size (length(t), nu)")
@@ -174,7 +174,7 @@ function _default_Ts(sys::LTISystem)
     return Ts
 end
 
-_default_Ts(sys::TransferFunction{SisoAbstract}) = 0.07
+_default_Ts(sys::TransferFunction{SisoGeneralized}) = 0.07
 
 # Determine if a signal is "smooth"
 function _issmooth(u, thresh::AbstractFloat=0.75)
