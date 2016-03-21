@@ -70,13 +70,11 @@ function Base.convert(::Type{SisoRational}, sys::SisoZpk)
     return SisoRational(num, den)
 end
 
-function Base.convert(::Type{SisoGeneralized}, sys::SisoZpk)
-    num = prod(zp2polys(sys.z))*sys.k
-    den = prod(zp2polys(sys.p))
-    return SisoRational(num, den)
-end
+Base.convert(::Type{SisoGeneralized}, sys::SisoRational) = SisoGeneralized(sprint(print_compact, sys))
+Base.convert(::Type{SisoGeneralized}, sys::SisoZpk) = convert(SisoGeneralized, convert(SisoRational, sys))
 
 Base.convert(::Type{SisoRational}, sys::SisoGeneralized) = SisoRational(sys.expr)
+Base.convert(::Type{SisoZpk}, sys::SisoGeneralized) = convert(SisoZpk, SisoRational(sys.expr))
 
 #Just default SisoTf to SisoRational
 SisoTf(args...) = SisoRational(args...)
@@ -210,14 +208,14 @@ function tf(tf::TransferFunction)
     return TransferFunction(matrix, tf.Ts, copy(tf.inputnames), copy(tf.outputnames))
 end
 
-#function tf(sys::TransferFunction{SisoGeneralized})
-#    oldmat = sys.matrix
-#    matrix = Array(SisoRational, sys.ny, sys.nu)
-#    for i in eachindex(oldmat)
-#        matrix[i] = SisoRational(oldmat[i].expr)
-#    end
-#    return TransferFunction(matrix, sys.Ts, copy(sys.inputnames), copy(sys.outputnames))
-#end
+function tfa(tf::TransferFunction)
+    oldmat = tf.matrix
+    matrix = Array(SisoGeneralized, tf.ny, tf.nu)
+    for i in eachindex(oldmat)
+        matrix[i] = convert(SisoGeneralized, oldmat[i])
+    end
+    return TransferFunction(matrix, tf.Ts, copy(tf.inputnames), copy(tf.outputnames))
+end
 
 zpk(sys::TransferFunction{SisoGeneralized}) = zpk(tf(sys))
 

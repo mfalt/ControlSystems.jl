@@ -73,6 +73,8 @@ function SisoRational(expr::Expr)
             return SisoRational(expr.args[2]) - SisoRational(expr.args[3])
         elseif expr.args[1] == :/
             return SisoRational(expr.args[2]) / SisoRational(expr.args[3])
+        elseif expr.args[1] == :^
+            return SisoRational(expr.args[2]) ^ expr.args[3]
         else
             error("Unexpected operator $(expr.args[1]) in expression")
         end

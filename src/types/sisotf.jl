@@ -39,6 +39,12 @@ function print_siso(io::IO, t::SisoRational, var=:s)
     println(io, denstr)
 end
 
+function print_compact(io::Base.IO, t::SisoRational, var=:s)
+    numstr = sprint(print_poly, t.num, var)
+    denstr = sprint(print_poly, t.den, var)
+    println(io, "($numstr)/($denstr)")
+end
+
 Base.promote_rule{T<:Real}(::Type{SisoRational}, ::Type{T}) = SisoRational
 Base.convert(::Type{SisoRational}, b::Real) = SisoRational([b], [1])
 
