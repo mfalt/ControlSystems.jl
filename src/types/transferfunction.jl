@@ -279,7 +279,7 @@ function tfa(systems::Array, Ts::Real=0; kwargs...)
     kvs = Dict(kwargs)
     inputnames = validate_names(kvs, :inputnames, nu)
     outputnames = validate_names(kvs, :outputnames, ny)
-    return TransferFunction(matrix, Float64(Ts), inputnames, outputnames)
+    return TransferFunction{SisoAbstract}(matrix, Float64(Ts), inputnames, outputnames)
 end
 
 tfa(var::Union{AbstractString,ExprLike}, Ts=0; kwargs...) = tfa([var], Ts; kwargs...)
