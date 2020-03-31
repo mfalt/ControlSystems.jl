@@ -40,12 +40,13 @@ jobs:
       - name: Test PR 1
         if: github.event.issue.pull_request == ''
         run: |
-          echo empty
+          echo empty string
+      - name: Test PR 2
+        if: github.event.issue.pull_request.id == {}
+        run: |
+          echo Empty object
+          
       - name: debug
         run: |
-          echo ${{ toJson(github.event.issue.pull_request) }}
+          echo '${{ toJson(github.event.issue.pull_request) }}'
           
-      - name: Test PR 2
-        if: github.event.issue.pull_request.id > 0
-        run: |
-          echo Positive
