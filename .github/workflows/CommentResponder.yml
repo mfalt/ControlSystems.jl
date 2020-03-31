@@ -5,34 +5,34 @@ on:
 
 jobs:
   mentioned:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Test
-      run: |
-        echo github.event.comment.user.login
-        echo github.event.issue.number
-        echo github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+          echo github.event.comment.user.login
+          echo github.event.issue.number
+          echo github.event.issue.pull_request
 
-    - id: get_user_permissons
-      uses: octokit/request-action@v2.x
-      with:
-        route: GET /repos/:repository/collaborators/:user/permisson
-        repository: ${{ github.repository }}
-        user: ${{ github.event.comment.user.login }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN_BOT }}
+      - id: get_user_permissons
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/:repository/collaborators/:user/permisson
+          repository: ${{ github.repository }}
+          user: ${{ github.event.comment.user.login }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN_BOT }}
 
-    - id: parse_permisson
-      uses: gr2m/get-json-paths-action@v1.x
-      with:
-        json: ${{ steps.get_user_permissons.outputs.data }}
-        permission: "permission"
+      - id: parse_permisson
+        uses: gr2m/get-json-paths-action@v1.x
+        with:
+          json: ${{ steps.get_user_permissons.outputs.data }}
+          permission: "permission"
 
-    - name: Test parsing
-      run: |
-        echo ${{ steps.parse_permisson.outputs.permission }}
+      - name: Test parsing
+        run: |
+          echo ${{ steps.parse_permisson.outputs.permission }}
 
-    - name: Test security
-      if: ${{ steps.parse_permisson.outputs.permission }} == `admin`
-      run: |
-        echo Permission Success
+      - name: Test security
+        if: ${{ steps.parse_permisson.outputs.permission }} == `admin`
+        run: |
+          echo Permission Success
