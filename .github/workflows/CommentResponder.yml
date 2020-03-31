@@ -28,28 +28,21 @@ jobs:
           json: ${{ steps.get_user_permissons.outputs.data }}
           permission: "permission"
 
-      - name: Test parsing
-        run: |
-          echo ${{ steps.parse_permisson.outputs.permission }}
 
-      - name: Ping ControlExamplePlots
+      - name: Is admin
         if: steps.parse_permisson.outputs.permission == 'admin'
         run: |
-          echo $GITHUB_REPOSITORY ${{ github.event.issue.pull_request }}
-
-      - name: Test PR 1
-        if: github.event.issue.pull_request == ''
-        run: |
-          echo empty string
-      - name: Test PR 2
-        if: github.event.issue.pull_request == null
-        run: |
-          echo Empty object
-      - name: Test PR 3
-        if: github.event.issue.pull_request.url == null
-        run: |
-          echo Null url
-      - name: debug
-        run: |
-          echo '${{ toJson(github.event.issue.pull_request) }}'
+          echo Is admin
           
+      - name: Is PR
+        if: github.event.issue.pull_request != null
+        run: |
+          echo Is PR
+
+      - name: PR ping ControlExamplePlots
+        if: github.event.issue.pull_request != null && steps.parse_permisson.outputs.permission == 'admin'
+        run: |
+          curl -X POST https://api.github.com/repos/mfalt/ControlExamplePlots.jl/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u ${{ secrets.ACCESS_TOKEN_BOT }} \
+          --data '{"event_type": "prupdate", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'", "pr_number":  ${{ github.event.issue.number }} }}'
