@@ -6,7 +6,6 @@ on:
 jobs:
   mentioned:
     runs-on: ubuntu-latest
-    if: github.event.issue.comment.body == '@JuliaControlBot test-plots'
     steps:
       - name: Test
         run: |
@@ -39,9 +38,18 @@ jobs:
         if: github.event.issue.pull_request != null
         run: |
           echo Is PR
+          
+      - name: Debug
+        run: |
+          echo ${{ github.event.issue.comment.body }}
+          
+      - name: Is request
+        if: github.event.issue.comment.body == '@JuliaControlBot test-plots' 
+        run: |
+          echo Is PR
 
       - name: PR ping ControlExamplePlots
-        if: github.event.issue.pull_request != null && steps.parse_permisson.outputs.permission == 'admin'
+        if: github.event.issue.pull_request != null && steps.parse_permisson.outputs.permission == 'admin' && false
         run: |
           curl -X POST https://api.github.com/repos/mfalt/ControlExamplePlots.jl/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
