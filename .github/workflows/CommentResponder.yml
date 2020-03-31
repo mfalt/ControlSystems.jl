@@ -41,6 +41,10 @@ jobs:
         if: github.event.issue.pull_request == ''
         run: |
           echo empty
+      - name: debug
+        run: |
+          echo ${{ toJson(github.event.issue.pull_request) }}
+          
       - name: Test PR 2
         if: github.event.issue.pull_request.id > 0
         run: |
