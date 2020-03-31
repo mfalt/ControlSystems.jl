@@ -16,7 +16,7 @@ jobs:
       - id: get_user_permissons
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/:repository/collaborators/:user/permisson
+          route: GET /repos/:repository/collaborators/:user/permission
           repository: ${{ github.repository }}
           user: ${{ github.event.comment.user.login }}
         env:
