@@ -35,4 +35,4 @@ jobs:
       - name: Ping ControlExamplePlots
         if: steps.parse_permisson.outputs.permission == 'admin'
         run: |
-          echo ${{ GITHUB_REPOSITORY }}  ${{ github.event.issue.pull_request }}
+          echo $GITHUB_REPOSITORY ${{ github.event.issue.pull_request }}
