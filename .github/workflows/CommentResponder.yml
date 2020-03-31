@@ -6,13 +6,8 @@ on:
 jobs:
   mentioned:
     runs-on: ubuntu-latest
+    if: github.event.comment.body == '@JuliaControlBot test-plots'
     steps:
-      - name: Test
-        run: |
-          echo ${{ github.event.comment.user.login }}
-          echo ${{ github.event.issue.number }}
-          echo ${{ github.event.issue.pull_request }}
-          echo ${{ github.event.comment.body }}
       - id: get_user_permissons
         uses: octokit/request-action@v2.x
         with:
@@ -38,10 +33,6 @@ jobs:
         if: github.event.issue.pull_request != null
         run: |
           echo Is PR
-          
-      - name: Debug
-        run: |
-          echo ${{ github.event.comment.body }}
           
       - name: Is request
         if: github.event.comment.body == '@JuliaControlBot test-plots' 
