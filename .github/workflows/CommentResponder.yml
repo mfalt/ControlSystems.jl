@@ -20,7 +20,7 @@ jobs:
           repository: ${{ github.repository }}
           user: ${{ github.event.comment.user.login }}
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN_BOT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - id: parse_permisson
         uses: gr2m/get-json-paths-action@v1.x
