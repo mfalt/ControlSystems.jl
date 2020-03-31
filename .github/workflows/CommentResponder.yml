@@ -9,9 +9,9 @@ jobs:
     steps:
       - name: Test
         run: |
-          echo github.event.comment.user.login
-          echo github.event.issue.number
-          echo github.event.issue.pull_request
+          echo ${{ github.event.comment.user.login }}
+          echo ${{ github.event.issue.number }}
+          echo ${{ github.event.issue.pull_request }}
 
       - id: get_user_permissons
         uses: octokit/request-action@v2.x
@@ -32,11 +32,7 @@ jobs:
         run: |
           echo ${{ steps.parse_permisson.outputs.permission }}
 
-      - name: Test security
+      - name: Ping ControlExamplePlots
         if: steps.parse_permisson.outputs.permission == 'admin'
         run: |
-          echo Permission Success
-          
-      - name: Print after
-        run: |
-          echo Print after
+          echo ${{ GITHUB_REPOSITORY }}  ${{ github.event.issue.pull_request }}
