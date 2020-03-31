@@ -6,13 +6,14 @@ on:
 jobs:
   mentioned:
     runs-on: ubuntu-latest
+    if: github.event.issue.comment.body == '@JuliaControlBot test-plots'
     steps:
       - name: Test
         run: |
           echo ${{ github.event.comment.user.login }}
           echo ${{ github.event.issue.number }}
           echo ${{ github.event.issue.pull_request }}
-
+          echo ${{ github.event.issue.comment.body }}
       - id: get_user_permissons
         uses: octokit/request-action@v2.x
         with:
@@ -33,7 +34,7 @@ jobs:
         if: steps.parse_permisson.outputs.permission == 'admin'
         run: |
           echo Is admin
-          
+
       - name: Is PR
         if: github.event.issue.pull_request != null
         run: |
