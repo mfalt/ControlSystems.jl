@@ -42,7 +42,7 @@ jobs:
         run: |
           echo empty string
       - name: Test PR 2
-        if: github.event.issue.pull_request == {}
+        if: github.event.issue.pull_request == null
         run: |
           echo Empty object
       - name: Test PR 3
