@@ -33,7 +33,7 @@ jobs:
           echo ${{ steps.parse_permisson.outputs.permission }}
 
       - name: Test security
-        if: steps.parse_permisson.outputs.permission == admin
+        if: steps.parse_permisson.outputs.permission == 'admin'
         run: |
           echo Permission Success
           
