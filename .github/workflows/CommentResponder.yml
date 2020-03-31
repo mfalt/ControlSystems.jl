@@ -34,7 +34,7 @@ jobs:
           echo Is PR
 
       - name: PR ping ControlExamplePlots # Post the ping to ControlExamplePlots to handle, using secret key for JuliaControlBot
-        if: github.event.issue.pull_request != null && steps.parse_permisson.outputs.permission == 'admin' && false
+        if: github.event.issue.pull_request != null && steps.parse_permisson.outputs.permission == 'admin'
         run: |
           curl -X POST https://api.github.com/repos/mfalt/ControlExamplePlots.jl/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
