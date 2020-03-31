@@ -36,3 +36,12 @@ jobs:
         if: steps.parse_permisson.outputs.permission == 'admin'
         run: |
           echo $GITHUB_REPOSITORY ${{ github.event.issue.pull_request }}
+
+      - name: Test PR 1
+        if: github.event.issue.pull_request == ''
+        run: |
+          echo empty
+      - name: Test PR 2
+        if: github.event.issue.pull_request.id > 0
+        run: |
+          echo Positive
