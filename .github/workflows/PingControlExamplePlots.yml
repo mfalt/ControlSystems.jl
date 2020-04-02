@@ -17,5 +17,5 @@ jobs:
           --data '{"event_type": "prupdate", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'", "pr_number":  ${{ github.event.number }} }}'
          fi
         env:
-          MY_SECRET: ${{ secrets.ACCESS_TOKEN_BOT }}
+          SECRET: ${{ secrets.ACCESS_TOKEN_BOT }}
           
