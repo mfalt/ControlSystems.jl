@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PR ping ControlExamplePlots
-        if: secrets.ACCESS_TOKEN_BOT != null # To make sure that the script wont fail when on a fork
+        if: ${{ secrets.ACCESS_TOKEN_BOT }} != null # To make sure that the script wont fail when on a fork
         run: |
           curl -X POST https://api.github.com/repos/mfalt/ControlExamplePlots.jl/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
