@@ -174,7 +174,7 @@ If not defined, suitable values are chosen based on `sys`.
 """
 impulseplot
 
-for (func, title, typ) = ((step, "Step Response", Stepplot), (impulse, "Impulse Response", Impulseplot))
+for (func, title, typ) = ((step, "Step Response", Stepplot), (impulse, "IIIIII Response", Impulseplot))
     funcname = Symbol(func,"plot")
 
     @recipe function f(p::typ)
